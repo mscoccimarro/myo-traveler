@@ -75,18 +75,36 @@ foreach my $country ( keys %{$continents{ $continent }} ) {
   }
 }
 
-print "###\tDistances\t###\n";
+my %cities;
+print "\n###\tDistances\t###\n";
 foreach my $country ( keys %{$continents{ $continent }} ) {
   foreach my $country2 ( keys %{$continents{ $continent }} ) {
     next if $country eq $country2;
     foreach my $city ( keys %{$continents{ $continent }{ $country }} ) {
       foreach my $city2 ( keys %{$continents{ $continent }{ $country2 }} ) {
+	next if $city eq $city2;
 	my $lat1 = $continents{ $continent }{ $country }{ $city }{ 'lat' };
 	my $lon1 = $continents{ $continent }{ $country }{ $city }{ 'lon' };
 	my $lat2 = $continents{ $continent }{ $country2 }{ $city2 }{ 'lat' };
 	my $lon2 = $continents{ $continent }{ $country2 }{ $city2 }{ 'lon' };
-	print "Distancia entre $city y $city2 = ".Distance($lat1, $lon1, $lat2, $lon2, "K")."\n";
+	my $dist = Distance($lat1, $lon1, $lat2, $lon2, "K");
+	$cities{ $city }{ $city2 } = $dist;
+	print "Distancia entre $city y $city2 = ".$dist."\n";
       }
     }
   }
+}
+
+print "\n###\tCiudades Cercanas\t###\n";
+foreach my $city ( keys %cities ) {
+  my $closestCity = "";
+  my $lowestDistance = 99999999; 
+  foreach my $ocity ( keys %{$cities{ $city }} ) {
+    my $currentDistance = $cities{ $city }{ $ocity };
+    if( $currentDistance < $lowestDistance ) {
+      $lowestDistance = $currentDistance;
+      $closestCity = $ocity;
+    }
+  }
+  print "La ciudad mas cercana a $city es $closestCity a $lowestDistance KM de distancia\n";
 }
