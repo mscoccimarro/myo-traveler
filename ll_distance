@@ -1,0 +1,37 @@
+#!/usr/bin/perl
+use Math::Trig;
+
+$pi = 3.14159265358979323846;
+$radius = 6378.137;
+
+sub Distance {
+  my ($lat1, $lon1, $lat2, $lon2, $unit) = @_;
+
+  $lat1 = deg2rad($lat1);
+  $lon1 = deg2rad($lon1);
+  $lat2 = deg2rad($lat2);
+  $lon2 = deg2rad($lon2);
+  my $dlon = $lon1 - $lon2;
+
+  my $distance = acos (sin($lat1) * sin($lat2) + cos($lat1) * cos($lat2) *
+      cos($dlon)) * $radius;
+
+  if ($unit eq "K") {
+    return $distance;
+  } elsif ($unit eq "M") {
+    return ($distance * 0.621371192);
+  } elsif ($unit eq "N") {
+    return ($distance * 0.539956803);
+  } else {
+    return 0;
+  }
+}
+
+$lat1 = 41.3879169;
+$lon1 = 2.1699187;
+$lat2 = 40.4167413;
+$lon2 = -3.7032498;
+
+print Distance($lat1, $lon1, $lat2, $lon2, "K") . " Kilometers\n";
+print Distance($lat1, $lon1, $lat2, $lon2, "M") . " Miles\n";
+print Distance($lat1, $lon1, $lat2, $lon2, "N") . " Nautical Miles\n";
