@@ -2,6 +2,35 @@
 use strict;
 use warnings;
 
+use Math::Trig;
+
+my $pi = 3.14159265358979323846;
+my $radius = 6378.137;
+
+sub Distance {
+  my ($lat1, $lon1, $lat2, $lon2, $unit) = @_;
+
+  $lat1 = deg2rad($lat1);
+  $lon1 = deg2rad($lon1);
+  $lat2 = deg2rad($lat2);
+  $lon2 = deg2rad($lon2);
+  my $dlon = $lon1 - $lon2;
+
+  my $distance = acos (sin($lat1) * sin($lat2) + cos($lat1) * cos($lat2) *
+      cos($dlon)) * $radius;
+
+  if ($unit eq "K") {
+    return $distance;
+  } elsif ($unit eq "M") {
+    return ($distance * 0.621371192);
+  } elsif ($unit eq "N") {
+    return ($distance * 0.539956803);
+  } else { 
+    return 0;
+  }
+}
+
+
 my $firstline = 1;
 my $path = "data/";
 my $filename = $path."capitals_continents_clean_v2.csv";
@@ -10,21 +39,22 @@ my %continents;
 open( my $in, "<", $filename ) || die "$0: Can't open $filename for reading: $!";
 
 while( my $line = <$in> ) {
-  ## Skip label line
+## Skip label line
   if( $firstline ) {
     $firstline = 0;
     next;
   }
 
-  ## Remove whitespace
+## Remove whitespace
   $line =~ s/\s*\z//;
   my ( $con, $co, $cy, $lat, $lon ) = split /;/, $line;
-  
+
   $continents{ $con }{ $co }{ $cy }{ 'lat' } = $lat;
   $continents{ $con }{ $co }{ $cy }{ 'lon' } = $lon;
 }
 close $in || die "$filename: $!";
 
+=pod
 ## Show all data
 foreach my $key ( keys %continents ) {
   foreach my $ckey ( keys %{$continents{ $key }} ) {
@@ -34,12 +64,29 @@ foreach my $key ( keys %continents ) {
     }
   }
 }
+=cut
 
 my $continent = "South America";
 print "###\t$continent\t###\n";
 foreach my $country ( keys %{$continents{ $continent }} ) {
   foreach my $city ( keys %{$continents{ $continent }{ $country }} ) {
-      print $country."{ ".$city." } : Latitude = ".$continents{ $continent }{ $country }{ $city }{ 'lat' }."\n";
-      print $country."{ ".$city." } : Longitude = ".$continents{ $continent }{ $country }{ $city }{ 'lon' }."\n";
+    print $country."{ ".$city." } : Latitude = ".$continents{ $continent }{ $country }{ $city }{ 'lat' }."\n";
+    print $country."{ ".$city." } : Longitude = ".$continents{ $continent }{ $country }{ $city }{ 'lon' }."\n";
+  }
+}
+
+print "###\tDistances\t###\n";
+foreach my $country ( keys %{$continents{ $continent }} ) {
+  foreach my $country2 ( keys %{$continents{ $continent }} ) {
+    next if $country eq $country2;
+    foreach my $city ( keys %{$continents{ $continent }{ $country }} ) {
+      foreach my $city2 ( keys %{$continents{ $continent }{ $country2 }} ) {
+	my $lat1 = $continents{ $continent }{ $country }{ $city }{ 'lat' };
+	my $lon1 = $continents{ $continent }{ $country }{ $city }{ 'lon' };
+	my $lat2 = $continents{ $continent }{ $country2 }{ $city2 }{ 'lat' };
+	my $lon2 = $continents{ $continent }{ $country2 }{ $city2 }{ 'lon' };
+	print "Distancia entre $city y $city2 = ".Distance($lat1, $lon1, $lat2, $lon2, "K")."\n";
+      }
+    }
   }
 }
