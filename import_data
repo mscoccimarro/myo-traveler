@@ -1,0 +1,45 @@
+#!/usr/bin/perl
+use strict;
+use warnings;
+
+my $firstline = 1;
+my $path = "data/";
+my $filename = $path."capitals_continents_clean_v2.csv";
+my %continents;
+
+open( my $in, "<", $filename ) || die "$0: Can't open $filename for reading: $!";
+
+while( my $line = <$in> ) {
+  ## Skip label line
+  if( $firstline ) {
+    $firstline = 0;
+    next;
+  }
+
+  ## Remove whitespace
+  $line =~ s/\s*\z//;
+  my ( $con, $co, $cy, $lat, $lon ) = split /;/, $line;
+  
+  $continents{ $con }{ $co }{ $cy }{ 'lat' } = $lat;
+  $continents{ $con }{ $co }{ $cy }{ 'lon' } = $lon;
+}
+close $in || die "$filename: $!";
+
+## Show all data
+foreach my $key ( keys %continents ) {
+  foreach my $ckey ( keys %{$continents{ $key }} ) {
+    foreach my $cykey ( keys %{$continents{ $key }{ $ckey }} ) {
+      print $key."{ ".$ckey." }{ ".$cykey." } : Latitude = ".$continents{ $key }{ $ckey }{ $cykey }{ 'lat' }."\n";
+      print $key."{ ".$ckey." }{ ".$cykey." } : Longitude = ".$continents{ $key }{ $ckey }{ $cykey }{ 'lon' }."\n";
+    }
+  }
+}
+
+my $continent = "South America";
+print "###\t$continent\t###\n";
+foreach my $country ( keys %{$continents{ $continent }} ) {
+  foreach my $city ( keys %{$continents{ $continent }{ $country }} ) {
+      print $country."{ ".$city." } : Latitude = ".$continents{ $continent }{ $country }{ $city }{ 'lat' }."\n";
+      print $country."{ ".$city." } : Longitude = ".$continents{ $continent }{ $country }{ $city }{ 'lon' }."\n";
+  }
+}
