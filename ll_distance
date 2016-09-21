@@ -1,8 +1,10 @@
 #!/usr/bin/perl
+use strict;
+use warnings;
 use Math::Trig;
 
-$pi = 3.14159265358979323846;
-$radius = 6378.137;
+my $pi = 3.14159265358979323846;
+my $radius = 6378.137;
 
 sub Distance {
   my ($lat1, $lon1, $lat2, $lon2, $unit) = @_;
@@ -27,10 +29,10 @@ sub Distance {
   }
 }
 
-$lat1 = 41.3879169;
-$lon1 = 2.1699187;
-$lat2 = 40.4167413;
-$lon2 = -3.7032498;
+my $lat1 = 41.3879169;
+my $lon1 = 2.1699187;
+my $lat2 = 40.4167413;
+my $lon2 = -3.7032498;
 
 print Distance($lat1, $lon1, $lat2, $lon2, "K") . " Kilometers\n";
 print Distance($lat1, $lon1, $lat2, $lon2, "M") . " Miles\n";
