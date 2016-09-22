@@ -127,6 +127,7 @@ sub computeClosestCity {
     }
   }
 
+  my $closestCountry = "";
   my $closestCity = "";
   my $lowestDistance = 99999999; 
   foreach my $country ( keys %continent ) {
@@ -139,24 +140,16 @@ sub computeClosestCity {
       if( $currentDistance < $lowestDistance ) {
         $lowestDistance = $currentDistance;
 	$closestCity = $city;
+	$closestCountry = $country;
       }
     }
   }
   #print "La ciudad mas cercana a $cityName es $closestCity a $lowestDistance KM de distancia\n";
+  delete $continent{ $closestCountry }{ $closestCity };
   return ( $closestCity, $lowestDistance );
 }
 
-#my ( $closestCity, $lowestDistance ) = computeClosestCity( "Stanley", %{$continents{ "South America" }} );
-#print "\nLa ciudad es $closestCity a $lowestDistance KM de distancia\n";
-sub alreadyVisited {
-  my ( $cityName, @visited ) = @_;
-
-  foreach my $city ( keys @visited ) {
-    return 1 if $cityName eq $city; 
-  }
-  return 0;
-}
-
+## Compute best capital travel path based on lowest distance
 sub computeBestPath {
   my ( %continent ) = @_;
   my $cityCount = keys %continent;
@@ -167,6 +160,7 @@ sub computeBestPath {
   for( my $i = 0; $i < $cityCount; $i++ ) {
     my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %continent );
     print "$currentCity => $nextCity at $dist KM\n";
+    $currentCity = $nextCity;
   }
 }
 
