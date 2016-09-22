@@ -30,7 +30,7 @@ sub Distance {
   }
 }
 
-
+## Parse capitals data
 my $firstline = 1;
 my $path = "data/";
 my $filename = $path."country-capitals.csv";
@@ -65,7 +65,6 @@ foreach my $key ( keys %continents ) {
   }
 }
 =cut
-
 my $continent = "South America";
 print "###\t$continent\t###\n";
 foreach my $country ( keys %{$continents{ $continent }} ) {
@@ -108,3 +107,42 @@ foreach my $city ( keys %cities ) {
   }
   print "La ciudad mas cercana a $city es $closestCity a $lowestDistance KM de distancia\n";
 }
+
+sub computeClosestCity {
+  my ( $cityName, %continent ) = @_;  
+  my $lat1 = 0;
+  my $lon1 = 0;
+  my $lat2 = 0;
+  my $lon2 = 0;
+
+  foreach my $country ( keys %continent ) {
+    foreach my $city ( keys %{$continent{ $country }} ) {
+      if( $cityName eq $city ) {
+	$lat1 = $continent{ $country }{ $city }{ 'lat' };
+	$lon1 = $continent{ $country }{ $city }{ 'lon' };
+	last;
+      }
+    }
+  }
+
+  my $closestCity = "";
+  my $lowestDistance = 99999999; 
+  foreach my $country ( keys %continent ) {
+    foreach my $city ( keys %{$continent{ $country }} ) {
+      ## Add skip for already visited cities
+      next if $cityName eq $city;
+      $lat2 = $continent{ $country }{ $city }{ 'lat' };
+      $lon2 = $continent{ $country }{ $city }{ 'lon' };
+      my $currentDistance = Distance( $lat1, $lon1, $lat2, $lon2, "K" ); 
+      if( $currentDistance < $lowestDistance ) {
+        $lowestDistance = $currentDistance;
+	$closestCity = $city;
+      }
+    }
+  }
+  print "La ciudad mas cercana a $cityName es $closestCity a $lowestDistance KM de distancia\n";
+  return $closestCity;
+}
+
+my $closestCity = computeClosestCity( "Stanley", %{$continents{ "South America" }} );
+print "\nLa ciudad es $closestCity\n";
