@@ -65,6 +65,7 @@ foreach my $key ( keys %continents ) {
   }
 }
 =cut
+=pod
 my $continent = "South America";
 print "###\t$continent\t###\n";
 foreach my $country ( keys %{$continents{ $continent }} ) {
@@ -107,6 +108,7 @@ foreach my $city ( keys %cities ) {
   }
   print "La ciudad mas cercana a $city es $closestCity a $lowestDistance KM de distancia\n";
 }
+=cut
 
 sub computeClosestCity {
   my ( $cityName, %continent ) = @_;  
@@ -140,9 +142,32 @@ sub computeClosestCity {
       }
     }
   }
-  print "La ciudad mas cercana a $cityName es $closestCity a $lowestDistance KM de distancia\n";
-  return $closestCity;
+  #print "La ciudad mas cercana a $cityName es $closestCity a $lowestDistance KM de distancia\n";
+  return ( $closestCity, $lowestDistance );
 }
 
-my $closestCity = computeClosestCity( "Stanley", %{$continents{ "South America" }} );
-print "\nLa ciudad es $closestCity\n";
+#my ( $closestCity, $lowestDistance ) = computeClosestCity( "Stanley", %{$continents{ "South America" }} );
+#print "\nLa ciudad es $closestCity a $lowestDistance KM de distancia\n";
+sub alreadyVisited {
+  my ( $cityName, @visited ) = @_;
+
+  foreach my $city ( keys @visited ) {
+    return 1 if $cityName eq $city; 
+  }
+  return 0;
+}
+
+sub computeBestPath {
+  my ( %continent ) = @_;
+  my $cityCount = keys %continent;
+
+  ## TODO: Replace with sub that gets most southern city
+  my $currentCity = "Buenos Aires";
+
+  for( my $i = 0; $i < $cityCount; $i++ ) {
+    my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %continent );
+    print "$currentCity => $nextCity at $dist KM\n";
+  }
+}
+
+computeBestPath( %{$continents{ "South America" }} );
