@@ -149,13 +149,30 @@ sub computeClosestCity {
   return ( $closestCity, $lowestDistance );
 }
 
+## Compute city which has lowest latitude
+sub computeSouthernCity {
+  my ( %continent ) = @_;
+  my $southernCity = "";
+  my $lowestLatitude = 999;
+  foreach my $country ( keys %continent ) {
+    foreach my $city ( keys %{$continent{ $country }} ) {
+      my $currentLatitude = $continent{ $country }{ $city }{ 'lat' };
+      if( $currentLatitude < $lowestLatitude ) {
+	$lowestLatitude = $currentLatitude;
+	$southernCity = $city;
+      }
+    }
+  }
+
+  return $southernCity;
+}
+
 ## Compute best capital travel path based on lowest distance
 sub computeBestPath {
   my ( %continent ) = @_;
   my $cityCount = keys %continent;
 
-  ## TODO: Replace with sub that gets most southern city
-  my $currentCity = "Buenos Aires";
+  my $currentCity = computeSouthernCity( %continent );
 
   for( my $i = 0; $i < $cityCount; $i++ ) {
     my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %continent );
@@ -164,4 +181,10 @@ sub computeBestPath {
   }
 }
 
-computeBestPath( %{$continents{ "South America" }} );
+my $selectedContinent = "South America";
+=pod
+my $southernCity = computeSouthernCity( %{$continents{ $selectedContinent }} );
+print "La ciudad mas al sur de $selectedContinent es $southernCity\n"; 
+=cut
+
+computeBestPath( %{$continents{ $selectedContinent }} );
