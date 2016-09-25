@@ -66,6 +66,7 @@ foreach my $key ( keys %continents ) {
 }
 =cut
 =pod
+## Show one continent data
 my $continent = "South America";
 print "###\t$continent\t###\n";
 foreach my $country ( keys %{$continents{ $continent }} ) {
@@ -74,41 +75,31 @@ foreach my $country ( keys %{$continents{ $continent }} ) {
     print $country."{ ".$city." } : Longitude = ".$continents{ $continent }{ $country }{ $city }{ 'lon' }."\n";
   }
 }
+=cut
 
-my %cities;
-print "\n###\tDistances\t###\n";
-foreach my $country ( keys %{$continents{ $continent }} ) {
-  foreach my $country2 ( keys %{$continents{ $continent }} ) {
-    next if $country eq $country2;
-    foreach my $city ( keys %{$continents{ $continent }{ $country }} ) {
-      foreach my $city2 ( keys %{$continents{ $continent }{ $country2 }} ) {
-	next if $city eq $city2;
-	my $lat1 = $continents{ $continent }{ $country }{ $city }{ 'lat' };
-	my $lon1 = $continents{ $continent }{ $country }{ $city }{ 'lon' };
-	my $lat2 = $continents{ $continent }{ $country2 }{ $city2 }{ 'lat' };
-	my $lon2 = $continents{ $continent }{ $country2 }{ $city2 }{ 'lon' };
-	my $dist = Distance($lat1, $lon1, $lat2, $lon2, "K");
-	$cities{ $city }{ $city2 } = $dist;
-	print "Distancia entre $city y $city2 = ".$dist."\n";
+sub computeDistances {
+  my ( %continent ) = @_;
+  my %cities;
+  foreach my $country ( keys %continent ) {
+    foreach my $country2 ( keys %continent ) {
+      next if $country eq $country2;
+      foreach my $city ( keys %{$continent{ $country }} ) {
+	foreach my $city2 ( keys %{$continent{ $country2 }} ) {
+	  next if $city eq $city2;
+	  my $lat1 = $continent{ $country }{ $city }{ 'lat' };
+	  my $lon1 = $continent{ $country }{ $city }{ 'lon' };
+	  my $lat2 = $continent{ $country2 }{ $city2 }{ 'lat' };
+	  my $lon2 = $continent{ $country2 }{ $city2 }{ 'lon' };
+	  my $dist = Distance($lat1, $lon1, $lat2, $lon2, "K");
+	  $cities{ $city }{ $city2 } = $dist;
+#	  print "Distancia entre $city y $city2 = ".$dist."\n";
+	}
       }
     }
   }
-}
 
-print "\n###\tCiudades Cercanas\t###\n";
-foreach my $city ( keys %cities ) {
-  my $closestCity = "";
-  my $lowestDistance = 99999999; 
-  foreach my $ocity ( keys %{$cities{ $city }} ) {
-    my $currentDistance = $cities{ $city }{ $ocity };
-    if( $currentDistance < $lowestDistance ) {
-      $lowestDistance = $currentDistance;
-      $closestCity = $ocity;
-    }
-  }
-  print "La ciudad mas cercana a $city es $closestCity a $lowestDistance KM de distancia\n";
+  return %cities;
 }
-=cut
 
 sub computeClosestCity {
   my ( $cityName, %continent ) = @_;  
@@ -185,7 +176,10 @@ sub computeBestPath {
   my ( %continent ) = @_;
 
   my $cityCount = keys %continent;
-  my $currentCity = computeSouthernCity( %continent );
+  my $startingCity = computeSouthernCity( %continent );
+  my $currentCity = $startingCity;
+
+  my %distances = computeDistances( %continent );
 
   deleteCity( $currentCity, %continent );
   $cityCount -= 1;
@@ -195,12 +189,10 @@ sub computeBestPath {
     print "$currentCity => $nextCity at $dist KM\n";
     $currentCity = $nextCity;
   }
+  print "$currentCity => $startingCity at $distances{ $currentCity }{ $startingCity } KM\n";
 }
 
-my $selectedContinent = "South America";
-=pod
-my $southernCity = computeSouthernCity( %{$continents{ $selectedContinent }} );
-print "La ciudad mas al sur de $selectedContinent es $southernCity\n"; 
-=cut
+my $selectedContinent = "North America";
 
+## Get best path, distance based
 computeBestPath( %{$continents{ $selectedContinent }} );
