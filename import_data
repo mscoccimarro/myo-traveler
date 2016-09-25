@@ -167,12 +167,28 @@ sub computeSouthernCity {
   return $southernCity;
 }
 
+sub deleteCity {
+  my ( $selectedCity, %continent ) = @_;
+
+  foreach my $country ( keys %continent ) {
+    foreach my $city ( keys %{$continent{ $country }} ) {
+      if( $city eq $selectedCity ) {
+	delete $continent{ $country }{ $city };
+	last;
+      }
+    }
+  }
+}
+
 ## Compute best capital travel path based on lowest distance
 sub computeBestPath {
   my ( %continent ) = @_;
-  my $cityCount = keys %continent;
 
+  my $cityCount = keys %continent;
   my $currentCity = computeSouthernCity( %continent );
+
+  deleteCity( $currentCity, %continent );
+  $cityCount -= 1;
 
   for( my $i = 0; $i < $cityCount; $i++ ) {
     my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %continent );
