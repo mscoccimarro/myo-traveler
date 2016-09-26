@@ -3,6 +3,7 @@ use strict;
 use warnings;
 
 use Math::Trig;
+use POSIX;
 
 my $pi = 3.14159265358979323846;
 my $radius = 6378.137;
@@ -186,13 +187,18 @@ sub computeBestPath {
 
   for( my $i = 0; $i < $cityCount; $i++ ) {
     my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %continent );
-    print "$currentCity => $nextCity at $dist KM\n";
+    print "\"$currentCity\"  ==>  \"$nextCity\"  ( ".floor($dist)." KM )\n";
     $currentCity = $nextCity;
   }
-  print "$currentCity => $startingCity at $distances{ $currentCity }{ $startingCity } KM\n";
+  print "\"$currentCity\"  ==>  \"$startingCity\"  ( ".floor($distances{ $currentCity }{ $startingCity })." KM )\n";
 }
 
-my $selectedContinent = "North America";
+my @sc = ( "South America", "North America", "Europe", "Africa", "Asia", "Australia" );
 
-## Get best path, distance based
-computeBestPath( %{$continents{ $selectedContinent }} );
+foreach my $scContinent ( @sc ) {
+  print "\n#####################################\n";
+  print "\t$scContinent\n"; 
+  print "#####################################\n\n";
+  ## Get best path, distance based
+  computeBestPath( %{$continents{ $scContinent }} );
+}
