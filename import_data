@@ -34,7 +34,7 @@ sub Distance {
 ## Parse capitals data
 my $firstline = 1;
 my $path = "data/";
-my $filename = $path."country-capitals.csv";
+my $filename = $path."continent_capitals.csv";
 my %continents;
 
 open( my $in, "<", $filename ) || die "$0: Can't open $filename for reading: $!";
@@ -102,42 +102,37 @@ sub computeDistances {
   return %cities;
 }
 
+my @visitedCities;
+
+## Return true if city was already visited, false on the other case
+sub visited {
+  my ( $city ) = @_;
+
+  foreach my $visited ( @visitedCities ) {
+    return 1 if $city eq $visited;
+  }
+  
+  return 0;
+}
+
+## Get closest city
 sub computeClosestCity {
-  my ( $cityName, %continent ) = @_;  
-  my $lat1 = 0;
-  my $lon1 = 0;
-  my $lat2 = 0;
-  my $lon2 = 0;
+  my ( $currentCity, %distances ) = @_;
 
-  foreach my $country ( keys %continent ) {
-    foreach my $city ( keys %{$continent{ $country }} ) {
-      if( $cityName eq $city ) {
-	$lat1 = $continent{ $country }{ $city }{ 'lat' };
-	$lon1 = $continent{ $country }{ $city }{ 'lon' };
-	last;
-      }
-    }
-  }
-
-  my $closestCountry = "";
+  my $lowestDistance = 999999;
   my $closestCity = "";
-  my $lowestDistance = 99999999; 
-  foreach my $country ( keys %continent ) {
-    foreach my $city ( keys %{$continent{ $country }} ) {
-      ## Add skip for already visited cities
-      next if $cityName eq $city;
-      $lat2 = $continent{ $country }{ $city }{ 'lat' };
-      $lon2 = $continent{ $country }{ $city }{ 'lon' };
-      my $currentDistance = Distance( $lat1, $lon1, $lat2, $lon2, "K" ); 
-      if( $currentDistance < $lowestDistance ) {
-        $lowestDistance = $currentDistance;
-	$closestCity = $city;
-	$closestCountry = $country;
-      }
+  foreach my $city ( keys %{$distances{ $currentCity }} ) {
+    next if visited( $city );
+    my $currentDistance = $distances{ $currentCity }{ $city };
+    if( $currentDistance < $lowestDistance ) {
+      $lowestDistance = $currentDistance;
+      $closestCity = $city;
     }
   }
-  #print "La ciudad mas cercana a $cityName es $closestCity a $lowestDistance KM de distancia\n";
-  delete $continent{ $closestCountry }{ $closestCity };
+
+  push( @visitedCities, $currentCity );
+  push( @visitedCities, $closestCity );
+
   return ( $closestCity, $lowestDistance );
 }
 
@@ -186,7 +181,8 @@ sub computeBestPath {
   $cityCount -= 1;
 
   for( my $i = 0; $i < $cityCount; $i++ ) {
-    my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %continent );
+    my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %distances );
+    #my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %continent );
     print "\"$currentCity\"  ==>  \"$nextCity\"  ( ".floor($dist)." KM )\n";
     $currentCity = $nextCity;
   }
