@@ -189,14 +189,20 @@ sub computeBestPath {
   }
   print "\"$currentCity\"  ==>  \"$startingCity\"  ( ".floor($distances{ $currentCity }{ $startingCity })." KM )\n";
   print "\nTOTAL DISTANCE TRAVELED: ".floor( $totalDistance )." KM\n";
+
+  return $totalDistance;
 }
 
 my @sc = ( "South America", "North America", "Europe", "Africa", "Asia", "Oceania" );
+my $totalDistTraveled = 0;
 
 foreach my $scContinent ( @sc ) {
   print "\n#####################################\n";
   print "\t$scContinent\n"; 
   print "#####################################\n\n";
   ## Get best path, distance based
-  computeBestPath( %{$continents{ $scContinent }} );
+  $totalDistTraveled += computeBestPath( %{$continents{ $scContinent }} );
 }
+
+print "\n#########################################################\n";
+print "TOTAL DISTANCE TRAVELED BY EXPEDITION TEAMS: ".floor( $totalDistTraveled )." KM\n";
