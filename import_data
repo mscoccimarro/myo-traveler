@@ -191,7 +191,7 @@ sub computeBestPath {
   print "\nTOTAL DISTANCE TRAVELED: ".floor( $totalDistance )." KM\n";
 }
 
-my @sc = ( "South America", "North America", "Europe", "Africa", "Asia", "Australia" );
+my @sc = ( "South America", "North America", "Europe", "Africa", "Asia", "Oceania" );
 
 foreach my $scContinent ( @sc ) {
   print "\n#####################################\n";
