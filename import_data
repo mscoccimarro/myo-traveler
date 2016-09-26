@@ -180,13 +180,15 @@ sub computeBestPath {
   deleteCity( $currentCity, %continent );
   $cityCount -= 1;
 
+  my $totalDistance = 0;
   for( my $i = 0; $i < $cityCount; $i++ ) {
     my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %distances );
-    #my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %continent );
     print "\"$currentCity\"  ==>  \"$nextCity\"  ( ".floor($dist)." KM )\n";
     $currentCity = $nextCity;
+    $totalDistance += $dist;
   }
   print "\"$currentCity\"  ==>  \"$startingCity\"  ( ".floor($distances{ $currentCity }{ $startingCity })." KM )\n";
+  print "\nTOTAL DISTANCE TRAVELED: ".floor( $totalDistance )." KM\n";
 }
 
 my @sc = ( "South America", "North America", "Europe", "Africa", "Asia", "Australia" );
