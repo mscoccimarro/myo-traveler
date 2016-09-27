@@ -118,6 +118,7 @@ sub visited {
 my $startingDate = "2017-01-01";
 my $kmTraveled = 0;
 my $days = 0;
+my $startPoint;
 
 ## Get closest city
 sub computeClosestCity {
@@ -125,18 +126,31 @@ sub computeClosestCity {
 
   my $lowestDistance = 999999;
   my $closestCity = "";
+  my $currentMonth = `echo "$startingDate" | cut -f 2 -d -`;
+  my $allVisited = 1;
   if( visited( "Asunción" ) && !visited( "Brasília" ) ) {
     $closestCity = "Brasília";
     $lowestDistance = $distances{ "Asunción" }{ "Brasília" };
   } else {
     foreach my $city ( keys %{$distances{ $currentCity }} ) {
-      next if visited( $city );
+      if( visited( $city ) ) {
+	$allVisited += 1;
+	next;
+      }
+      ## Do not visit Lima on February
+      next if( ( $city eq "Lima" ) && ( $currentMonth == 2 ) );
       my $currentDistance = $distances{ $currentCity }{ $city };
       if( $currentDistance < $lowestDistance ) {
 	$lowestDistance = $currentDistance;
 	$closestCity = $city;
       }
     }
+  }
+
+  my $keas = keys %distances;
+  if( $allVisited == $keas ) {
+    $closestCity = $startPoint;
+    $lowestDistance = $distances{ $currentCity }{ $startPoint };
   }
   
   ## Stayed a week on the capital
@@ -206,7 +220,6 @@ sub computeBestPath {
   my %distances = computeDistances( %continent );
 
   deleteCity( $currentCity, %continent );
-  $cityCount -= 1;
 
   my $totalDistance = 0;
   for( my $i = 0; $i < $cityCount; $i++ ) {
@@ -215,7 +228,6 @@ sub computeBestPath {
     $currentCity = $nextCity;
     $totalDistance += $dist;
   }
-  print "\"$currentCity\"  ==>  \"$startingCity\"  ( ".floor($distances{ $currentCity }{ $startingCity })." KM )\n";
   print "\nDISTANCIA TOTAL RECORRIDA: ".floor( $totalDistance )." KM\n";
 
   return $totalDistance;
@@ -229,8 +241,10 @@ foreach my $scContinent ( @sc ) {
   print "\t$scContinent\n"; 
   print "#####################################\n\n";
   ## Get best path, distance based
+  $startPoint = computeSouthernCity( %{$continents{ $scContinent }} );
   $totalDistTraveled += computeBestPath( %{$continents{ $scContinent }} );
   $startingDate = "2017-01-01";
+  $days = 0;
 }
 
 print "\n#########################################################\n";
