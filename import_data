@@ -115,25 +115,53 @@ sub visited {
   return 0;
 }
 
+my $startingDate = "2017-01-01";
+my $kmTraveled = 0;
+my $days = 0;
+
 ## Get closest city
 sub computeClosestCity {
   my ( $currentCity, %distances ) = @_;
 
   my $lowestDistance = 999999;
   my $closestCity = "";
-  foreach my $city ( keys %{$distances{ $currentCity }} ) {
-    next if visited( $city );
-    my $currentDistance = $distances{ $currentCity }{ $city };
-    if( $currentDistance < $lowestDistance ) {
-      $lowestDistance = $currentDistance;
-      $closestCity = $city;
+  if( visited( "Asunción" ) && !visited( "Brasília" ) ) {
+    $closestCity = "Brasília";
+    $lowestDistance = $distances{ "Asunción" }{ "Brasília" };
+  } else {
+    foreach my $city ( keys %{$distances{ $currentCity }} ) {
+      next if visited( $city );
+      my $currentDistance = $distances{ $currentCity }{ $city };
+      if( $currentDistance < $lowestDistance ) {
+	$lowestDistance = $currentDistance;
+	$closestCity = $city;
+      }
     }
+  }
+  
+  ## Stayed a week on the capital
+  $days += 7;
+  $kmTraveled += $lowestDistance;
+
+  ## Current Date 
+  my $currentDate = `date +"%d/%m/%Y" -d "$startingDate + $days day"`;
+  $startingDate = `date +"%Y-%m-%d" -d "$startingDate + $days day"`;
+  chomp( $startingDate );
+  chomp( $currentDate );
+
+  $days = 0;
+
+  my $mod = floor( $kmTraveled / 3000 );
+  if( $mod > 0 ) {
+    $kmTraveled -= 3000*$mod;
+    ## Rest five days on the next capital
+    $days += 5*$mod;
   }
 
   push( @visitedCities, $currentCity );
   push( @visitedCities, $closestCity );
 
-  return ( $closestCity, $lowestDistance );
+  return ( $closestCity, $lowestDistance, $currentDate );
 }
 
 ## Compute city which has lowest latitude
@@ -182,8 +210,8 @@ sub computeBestPath {
 
   my $totalDistance = 0;
   for( my $i = 0; $i < $cityCount; $i++ ) {
-    my ( $nextCity, $dist ) = computeClosestCity( $currentCity, %distances );
-    print "\"$currentCity\"  ==>  \"$nextCity\"  ( ".floor($dist)." KM )\n";
+    my ( $nextCity, $dist, $currentDate ) = computeClosestCity( $currentCity, %distances );
+    print "\"$currentCity\"  ==>  \"$nextCity\"  ( ".floor($dist)." KM )  Fecha de llegada: $currentDate\n";
     $currentCity = $nextCity;
     $totalDistance += $dist;
   }
@@ -202,6 +230,7 @@ foreach my $scContinent ( @sc ) {
   print "#####################################\n\n";
   ## Get best path, distance based
   $totalDistTraveled += computeBestPath( %{$continents{ $scContinent }} );
+  $startingDate = "2017-01-01";
 }
 
 print "\n#########################################################\n";
