@@ -216,7 +216,7 @@ sub computeBestPath {
     $totalDistance += $dist;
   }
   print "\"$currentCity\"  ==>  \"$startingCity\"  ( ".floor($distances{ $currentCity }{ $startingCity })." KM )\n";
-  print "\nTOTAL DISTANCE TRAVELED: ".floor( $totalDistance )." KM\n";
+  print "\nDISTANCIA TOTAL RECORRIDA: ".floor( $totalDistance )." KM\n";
 
   return $totalDistance;
 }
@@ -234,4 +234,4 @@ foreach my $scContinent ( @sc ) {
 }
 
 print "\n#########################################################\n";
-print "TOTAL DISTANCE TRAVELED BY EXPEDITION TEAMS: ".floor( $totalDistTraveled )." KM\n";
+print "DISTANCIA TOTAL RECORRIDA POR TODOS LOS EQUIPOS: ".floor( $totalDistTraveled )." KM\n";
