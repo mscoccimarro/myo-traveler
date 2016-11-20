@@ -128,9 +128,13 @@ sub computeClosestCity {
   my $closestCity = "";
   my $currentMonth = `echo "$startingDate" | cut -f 2 -d -`;
   my $allVisited = 1;
-  if( visited( "Asunción" ) && !visited( "Brasília" ) ) {
+  if( !visited( "Buenos Aires" ) && $currentMonth == 1 ) {
+    $closestCity = "Buenos Aires";
+    $lowestDistance = $distances{ $currentCity }{ "Buenos Aires" };
+  }
+  if( !visited( "Brasília" ) && $currentMonth == 2 ) {
     $closestCity = "Brasília";
-    $lowestDistance = $distances{ "Asunción" }{ "Brasília" };
+    $lowestDistance = $distances{ $currentCity }{ "Brasília" };
   } else {
     foreach my $city ( keys %{$distances{ $currentCity }} ) {
       if( visited( $city ) ) {
