@@ -122,17 +122,18 @@ my $startPoint;
 
 ## Get closest city
 sub computeClosestCity {
-  my ( $currentCity, %distances ) = @_;
+  my ( $scCont, $currentCity, %distances ) = @_;
 
   my $lowestDistance = 999999;
   my $closestCity = "";
   my $currentMonth = `echo "$startingDate" | cut -f 2 -d -`;
   my $allVisited = 1;
-  if( !visited( "Buenos Aires" ) && $currentMonth == 1 ) {
+  ## South America
+  if( ( $scCont eq "South America" ) && !visited( "Buenos Aires" ) && $currentMonth == 1 ) {
     $closestCity = "Buenos Aires";
     $lowestDistance = $distances{ $currentCity }{ "Buenos Aires" };
   }
-  if( !visited( "Brasília" ) && $currentMonth == 2 ) {
+  if( ( $scCont eq "South America" ) && !visited( "Brasília" ) && $currentMonth == 2 ) {
     $closestCity = "Brasília";
     $lowestDistance = $distances{ $currentCity }{ "Brasília" };
   } else {
@@ -142,7 +143,7 @@ sub computeClosestCity {
 	next;
       }
       ## Do not visit Lima on February
-      next if( ( $city eq "Lima" ) && ( $currentMonth == 2 ) );
+      next if( ( $scCont eq "South America" ) && ( $city eq "Lima" ) && ( $currentMonth == 2 ) );
       my $currentDistance = $distances{ $currentCity }{ $city };
       if( $currentDistance < $lowestDistance ) {
 	$lowestDistance = $currentDistance;
@@ -215,7 +216,7 @@ sub deleteCity {
 
 ## Compute best capital travel path based on lowest distance
 sub computeBestPath {
-  my ( %continent ) = @_;
+  my ( $scCont, %continent ) = @_;
 
   my $cityCount = keys %continent;
   my $startingCity = computeSouthernCity( %continent );
@@ -227,7 +228,7 @@ sub computeBestPath {
 
   my $totalDistance = 0;
   for( my $i = 0; $i < $cityCount; $i++ ) {
-    my ( $nextCity, $dist, $currentDate ) = computeClosestCity( $currentCity, %distances );
+    my ( $nextCity, $dist, $currentDate ) = computeClosestCity( $scCont, $currentCity, %distances );
     print "\"$currentCity\"  ==>  \"$nextCity\"  ( ".floor($dist)." KM )  Fecha de llegada: $currentDate\n";
     $currentCity = $nextCity;
     $totalDistance += $dist;
@@ -246,7 +247,7 @@ foreach my $scContinent ( @sc ) {
   print "#####################################\n\n";
   ## Get best path, distance based
   $startPoint = computeSouthernCity( %{$continents{ $scContinent }} );
-  $totalDistTraveled += computeBestPath( %{$continents{ $scContinent }} );
+  $totalDistTraveled += computeBestPath( $scContinent, %{$continents{ $scContinent }} );
   $startingDate = "2017-01-01";
   $days = 0;
 }
